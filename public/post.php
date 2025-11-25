@@ -1,3 +1,83 @@
+<?php
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../app/controllers/AuthController.php';
+requireAuth();
+$user = getCurrentUser();
+
+// Get post ID from URL
+$id_post = $_GET['id'] ?? null;
+
+if (!$id_post) {
+    header('Location: ' . url('community.php'));
+    exit;
+}
+
+// Fetch post details
+$stmt = $pdo->prepare("
+    SELECT p.*, u.nom as author, 
+           (SELECT COUNT(*) FROM likes WHERE post_id = p.id_post) as likes_count
+    FROM posts p
+    JOIN users u ON p.author_id = u.id_user
+    WHERE p.id_post = ?
+");
+$stmt->execute([$id_post]);
+$post = $stmt->fetch();
+
+if (!$post) {
+    header('Location: ' . url('community.php'));
+    exit;
+}
+
+// Handle comment submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['contenu'])) {
+    $contenu = trim($_POST['contenu']);
+    if (!empty($contenu)) {
+        $stmt = $pdo->prepare("INSERT INTO comments (post_id, author_id, contenu) VALUES (?, ?, ?)");
+        $stmt->execute([$id_post, $user['id_user'], $contenu]);
+        header('Location: ' . url('post.php?id=' . $id_post));
+        exit;
+    }
+}
+
+// Fetch comments
+$stmt = $pdo->prepare("
+    SELECT c.*, u.nom as author
+    FROM comments c
+    JOIN users u ON c.author_id = u.id_user
+    WHERE c.post_id = ?
+    ORDER BY c.created_at DESC
+");
+$stmt->execute([$id_post]);
+$comments = $stmt->fetchAll();
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo htmlspecialchars($post['titre'] ?: 'Publication'); ?> - SmartBudget</title>
+    <meta name="description" content="Publication SmartBudget">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="<?php echo url('css/style.css'); ?>">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <div class="navbar-brand">SmartBudget</div>
+            <div class="navbar-links">
+                <a href="<?php echo url('dashboard.php'); ?>">Dashboard</a>
+                <a href="<?php echo url('community.php'); ?>">Communauté</a>
+                <a href="<?php echo url('logout.php'); ?>">Déconnexion</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
         <a href="<?php echo url('community.php'); ?>" style="display: inline-block; margin-bottom: 1.5rem; color: var(--color-primary-light);">
             ← Retour à la communauté
         </a>
