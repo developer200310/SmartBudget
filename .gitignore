@@ -1,0 +1,36 @@
+# Database Configuration
+db.php
+config.local.php
+
+# Environment files
+.env
+.env.local
+
+# IDE and Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+error.log
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Vendor/Dependencies (if using Composer in future)
+vendor/
+node_modules/
+
+# User uploads (if any)
+uploads/

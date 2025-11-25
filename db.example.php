@@ -1,14 +1,19 @@
 <?php
 /**
- * Database Configuration and Connection
+ * Database Configuration and Connection - EXAMPLE FILE
  * SmartBudget Application
+ * 
+ * INSTRUCTIONS:
+ * 1. Copy this file to db.php
+ * 2. Update the database credentials below with your own
+ * 3. Make sure db.php is in .gitignore (it should be by default)
  */
 
-// Database configuration
+// Database configuration - UPDATE THESE VALUES
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'smartbudget');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', ''); // Add your MySQL password here if needed
 define('DB_CHARSET', 'utf8mb4');
 
 // PDO options for better error handling and security
